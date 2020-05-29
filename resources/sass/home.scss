@@ -1,0 +1,26 @@
+.meta-data {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+
+    > li {
+        display: inline-block;
+        margin-right: 30px;
+    }
+}
+
+.about-me {
+    width: 160px;
+    max-height: 100%;
+    height: auto;
+}
+
+.cloud-tag a {
+    margin-bottom: 0.5rem;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+}
+
+.pagination {
+    justify-content: center;
+}
