@@ -20,11 +20,12 @@ class CreateUsersTable extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
 
-            $table->mediumText('description');
+            $table->mediumText('description')->nullable();
             $table->string('facebook_link')->nullable();
             $table->string('twitter_link')->nullable();
             $table->string('github_link')->nullable();
             $table->string('youtube_link')->nullable();
+            $table->string('instagram_link')->nullable();
             $table->boolean('is_author')->default(false);
 
             $table->rememberToken();

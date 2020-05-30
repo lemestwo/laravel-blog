@@ -9,7 +9,9 @@
                     <div class="card mb-3 border-secondary">
                         <h5 class="card-header text-white bg-secondary">Featured</h5>
                         <div class="card-body">
-                            <h5 class="card-title">{{ $featured->title }}</h5>
+                            <h5 class="card-title font-weight-bold">{{ $featured->title }}</h5>
+                            <h6 class="card-subtitle mb-2">by {{ $featured->user->name }}</h6>
+                            <p class="card-text">{{ $featured->summary  }}</p>
                             <ul class="card-subtitle mb-2 text-muted meta-data small">
                                 <li>
                                     <i class="fas fa-calendar-alt"></i>
@@ -17,19 +19,18 @@
                                 </li>
                                 <li>
                                     <i class="fas fa-tags"></i>
-                                    <a href="#">Test, </a>
-                                    <a href="#">Test, </a>
-                                    <a href="#">Test</a>
+                                    @foreach($featured->tags as $tag)
+                                        <a href="{{ route('posts.index', ['tag'=>$tag->name]) }}">{{ $tag->name }}</a>{{ !$loop->last ? ',' : '' }}
+                                    @endforeach
                                 </li>
                                 <li>
                                     <i class="fas fa-comments"></i>
                                     {{ $featured->comment_count }} comments
                                 </li>
                             </ul>
-                            <p class="card-text">{{ $featured->summary  }}</p>
                             <div class="text-right">
                                 <a href="{{ route('posts.show', ['slug'=>$featured->slug]) }}"
-                                   class="card-link text-right">Read More</a>
+                                   class="btn btn-primary">Read More</a>
                             </div>
                         </div>
                     </div>
@@ -50,14 +51,14 @@
                         <div class="col mb-4">
                             <div class="card">
                                 <div class="card-body">
-                                    <h5 class="card-title">{{ $post->title }}</h5>
+                                    <h5 class="card-title font-weight-bold">{{ $post->title }}</h5>
+                                    <h6 class="card-subtitle mb-2">by {{ $post->user->name }}</h6>
                                     <p class="card-text">{{ $post->summary  }}</p>
                                     <ul class="mb-2 text-muted meta-data small">
                                         <li>
                                             <i class="fas fa-tags"></i>
                                             @foreach($post->tags as $tag)
-                                                <a href="{{ route('posts.index', ['tag'=>$tag->name]) }}">{{ $tag->name }}  @if (!$loop->last)
-                                                        ,@endif</a>
+                                                <a href="{{ route('posts.index', ['tag'=>$tag->name]) }}">{{ $tag->name }}</a>{{ !$loop->last ? ',' : '' }}
                                             @endforeach
                                         </li>
                                     </ul>
@@ -90,7 +91,59 @@
 
             <div class="col-md-4">
 
-                @include('posts.sidebar')
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <form class="input-group" method="get" action="{{ route('posts.index') }}">
+                            <input class="form-control" type="search" placeholder="Search" aria-label="Search"
+                                   name="search" id="search">
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary" type="submit">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="card mb-3">
+                    <h6 class="card-header text-white bg-secondary">Popular Posts</h6>
+                    <ul class="list-group list-group-flush">
+
+                        @foreach($topPosts as $post)
+                            <li class="list-group-item">
+                                <h5 class="card-title font-weight-bold">{{ $post->title }}</h5>
+                                <h6 class="card-subtitle mb-2">by {{ $post->user->name }}</h6>
+                                <div class="card-text">
+                                    <div class="row small text-muted">
+                                        <div class="col">
+                                            <i class="fas fa-calendar-alt"></i>
+                                            {{ date('M d, Y', strtotime($post->published_at)) }}
+                                        </div>
+                                        <div class="col-auto">
+                                            <a href="{{ route('posts.show', ['slug'=>$post->slug]) }}"
+                                               class="card-link">Read More</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                        @endforeach
+
+                    </ul>
+                </div>
+
+                <div class="card mb-3">
+                    <h6 class="card-header text-white bg-secondary">Popular Tags</h6>
+                    <div class="card-body text-center">
+                        <p class="card-text cloud-tag">
+                            @foreach($topTags as $tag)
+                                <a class="btn btn-outline-secondary btn-sm"
+                                   href="{{ route('posts.index', ['tag'=>$tag->name]) }}"
+                                   role="button">{{ $tag->name }}
+                                </a>
+                            @endforeach
+                        </p>
+                    </div>
+                </div>
 
             </div>
 

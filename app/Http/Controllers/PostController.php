@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Post;
+use App\Posttag;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class PostController extends Controller
@@ -11,6 +13,7 @@ class PostController extends Controller
     /**
      * Display a listing of the resource.
      *
+     * @param Request $request
      * @return View
      */
     public function index(Request $request)
@@ -18,26 +21,44 @@ class PostController extends Controller
         $search = $request->get('search');
         $tag = $request->get('tag');
         $isSearchOrTag = false;
+
         if ($search != null || $tag != null) {
             $featured = null;
-            if($search != null) {
+            if ($search != null) {
                 $posts = Post::where('title', 'LIKE', '%' . $search . '%')
                     ->orWhere('summary', 'LIKE', '%' . $search . '%')
                     ->orWhere('content', 'LIKE', '%' . $search . '%')
-                    ->paginate(10);
-                $posts->appends(['search' => $search]);
+                    ->with('tags')
+                    ->paginate(10)
+                    ->appends(['search' => $search]);
             } else {
-                $posts = Post::whereHas('tags', function($query) use ($tag) {
+                $posts = Post::whereHas('tags', function ($query) use ($tag) {
                     $query->whereName($tag);
-                })->paginate(10);
-                $posts->appends(['tag' => $tag]);
+                })
+                    ->with('tags')
+                    ->paginate(10)
+                    ->appends(['tag' => $tag]);
             }
             $isSearchOrTag = true;
         } else {
             $featured = Post::where('status', 2)->with('tags')->first();
             $posts = Post::latest('published_at')->paginate(10);
         }
-        return view('posts.index', ['posts' => $posts, 'featured' => $featured, 'isSearchOrTag' => $isSearchOrTag]);
+
+        $topPosts = Post::orderByDesc('comment_count')->get()->take(5);
+        $topTags = Posttag::join('tags', 'tags.id', '=', 'tag_id')
+            ->select(DB::raw('count(tag_id) as repetition, tag_id'), 'tags.name as name')
+            ->groupBy('tag_id', 'name')
+            ->orderByDesc('repetition')
+            ->get()->take(5);
+
+        return view('posts.index', [
+            'posts' => $posts,
+            'featured' => $featured,
+            'isSearchOrTag' => $isSearchOrTag,
+            'topPosts' => $topPosts,
+            'topTags' => $topTags
+        ]);
     }
 
     /**
@@ -69,9 +90,9 @@ class PostController extends Controller
      */
     public function show($slug)
     {
-        $post = Post::where('slug', $slug)->firstOrFail();
-        dd($post->tags);
-        return view('posts.show', ['post' => $post]);
+        return view('posts.show', [
+            'post' => Post::where('slug', $slug)->with('comments')->with('user')->firstOrFail()
+        ]);
     }
 
     /**

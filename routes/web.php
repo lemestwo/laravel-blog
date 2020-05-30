@@ -17,4 +17,6 @@ Route::get('/', 'PostController@index')->name('home');
 Route::resource('posts', 'PostController')->except(['show']);
 Route::get('posts/{slug}', 'PostController@show')->name('posts.show');
 
+Route::resource('comments', 'CommentController')->except(['show'])->middleware('auth');
+
 Auth::routes();

@@ -24,7 +24,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $hidden = [
-        'password', 'remember_token',
+        'password', 'remember_token', 'email_verified_at', 'created_at'
     ];
 
     /**
@@ -36,11 +36,33 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    /**
-     * @return boolean
-     */
-    public function IsAuthor()
+    public function isAuthor(): bool
     {
         return $this->is_author;
+    }
+
+    public function hasFacebook(): bool
+    {
+        return $this->facebook_link != null;
+    }
+
+    public function hasTwitter(): bool
+    {
+        return $this->twitter_link != null;
+    }
+
+    public function hasGithub(): bool
+    {
+        return $this->github_link != null;
+    }
+
+    public function hasYoutube(): bool
+    {
+        return $this->youtube_link != null;
+    }
+
+    public function hasInstagram(): bool
+    {
+        return $this->instagram_link != null;
     }
 }
