@@ -3,9 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Post;
-use App\Posttag;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class PostController extends Controller
@@ -19,56 +17,37 @@ class PostController extends Controller
     public function index(Request $request)
     {
         $search = $request->get('search');
-        $tag = $request->get('tag');
-        $isSearchOrTag = false;
+        $isSearch = false;
 
-        if ($search != null || $tag != null) {
+        if ($search != null) {
             $featured = null;
-            if ($search != null) {
-                $posts = Post::where('title', 'LIKE', '%' . $search . '%')
-                    ->orWhere('summary', 'LIKE', '%' . $search . '%')
-                    ->orWhere('content', 'LIKE', '%' . $search . '%')
-                    ->with('tags')
-                    ->paginate(10)
-                    ->appends(['search' => $search]);
-            } else {
-                $posts = Post::whereHas('tags', function ($query) use ($tag) {
-                    $query->whereName($tag);
-                })
-                    ->with('tags')
-                    ->paginate(10)
-                    ->appends(['tag' => $tag]);
-            }
-            $isSearchOrTag = true;
+            $posts = Post::where('title', 'LIKE', '%' . $search . '%')
+                ->orWhere('summary', 'LIKE', '%' . $search . '%')
+                ->orWhere('content', 'LIKE', '%' . $search . '%')
+                ->paginate(10)
+                ->appends(['search' => $search]);
+            $isSearch = true;
         } else {
-            $featured = Post::where('status', 2)->with('tags')->first();
+            $featured = Post::where('status', 2)->first();
             $posts = Post::latest('published_at')->paginate(10);
         }
 
         $topPosts = Post::orderByDesc('comment_count')->get()->take(5);
-        $topTags = Posttag::join('tags', 'tags.id', '=', 'tag_id')
-            ->select(DB::raw('count(tag_id) as repetition, tag_id'), 'tags.name as name')
-            ->groupBy('tag_id', 'name')
-            ->orderByDesc('repetition')
-            ->get()->take(5);
 
         return view('posts.index', [
             'posts' => $posts,
             'featured' => $featured,
-            'isSearchOrTag' => $isSearchOrTag,
-            'topPosts' => $topPosts,
-            'topTags' => $topTags
+            'isSearch' => $isSearch,
+            'topPosts' => $topPosts
         ]);
     }
 
     /**
      * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create(): View
     {
-        //
+        return view('posts.createEdit');
     }
 
     /**
@@ -83,9 +62,9 @@ class PostController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * Display the specified resource using it's slug.
      *
-     * @param string $slug
+     * @param $slug
      * @return View
      */
     public function show($slug)
@@ -102,22 +81,22 @@ class PostController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param int $id
-     * @return \Illuminate\Http\Response
+     * @param Post $post
+     * @return View
      */
-    public function edit($id)
+    public function edit(Post $post)
     {
-        //
+        return view('posts.createEdit', ['post' => $post]);
     }
 
     /**
      * Update the specified resource in storage.
      *
      * @param \Illuminate\Http\Request $request
-     * @param int $id
-     * @return \Illuminate\Http\Response
+     * @param Post $post
+     * @return void
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, Post $post)
     {
         //
     }

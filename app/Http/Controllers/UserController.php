@@ -15,7 +15,7 @@ class UserController extends Controller
      * @param int $id
      * @return \Illuminate\View\View
      */
-    public function show($id)
+    public function show()
     {
         $user = Auth::user();
         $posts = Post::where('user_id', $user->id)->orderByDesc('published_at')->get();
@@ -38,6 +38,13 @@ class UserController extends Controller
     public function update(Request $request)
     {
         $user = Auth::user();
-        return redirect()->route('user.show', [$user]);
+        $user->description = $request->input('description');
+        $user->save();
+        return redirect()->route('user.show');
+    }
+
+    public function showPosts()
+    {
+        return view('user.posts', ['posts' => Post::where('user_id', Auth::id())->get()]);
     }
 }

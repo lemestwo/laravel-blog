@@ -2,10 +2,9 @@
 
 use App\Comment;
 use App\Post;
-use App\Posttag;
-use App\Tag;
 use App\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -18,9 +17,24 @@ class DatabaseSeeder extends Seeder
     {
         // $this->call(UserSeeder::class);
         factory(User::class, 7)->create();
-        factory(Tag::class, 7)->create();
         factory(Post::class, 25)->create();
-        factory(Posttag::class, 200)->create();
         factory(Comment::class, 50)->create();
+
+        $user = User::create([
+            'name' => 'Admin Test',
+            'email' => 'admin@admin.com',
+            'password' => Hash::make('admin'),
+            'level' => 2
+        ]);
+        $post = Post::create([
+            'slug' => 'test-post-slug',
+            'title' => 'Test Post Slug',
+            'summary' => 'Just a test post.',
+            'content' => 'Text post with some content <br /> looking for errors',
+            'status' => 1,
+            'published_at' => now(),
+            'user_id' => $user->id
+        ]);
+
     }
 }

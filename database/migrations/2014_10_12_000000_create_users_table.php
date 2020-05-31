@@ -26,7 +26,8 @@ class CreateUsersTable extends Migration
             $table->string('github_link')->nullable();
             $table->string('youtube_link')->nullable();
             $table->string('instagram_link')->nullable();
-            $table->boolean('is_author')->default(false);
+
+            $table->integer('level')->unsigned()->default(0);
 
             $table->rememberToken();
             $table->timestamps();

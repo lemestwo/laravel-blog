@@ -32,7 +32,11 @@
                         </a>
 
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <a href="{{ route('user.show', Auth::id()) }}" class="dropdown-item">Profile</a>
+                            <a href="{{ route('user.show') }}" class="dropdown-item">Profile</a>
+                            @if(Auth::user()->level >= 1)
+                                <a href="{{ route('user.posts') }}" class="dropdown-item">Posts</a>
+                            @endif
+                            <a href="#" class="dropdown-item">Settings</a>
                             <div class="dropdown-divider"></div>
                             <a class="dropdown-item" href="{{ route('logout') }}"
                                onclick="event.preventDefault();

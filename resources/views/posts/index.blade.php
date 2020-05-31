@@ -15,13 +15,7 @@
                             <ul class="card-subtitle mb-2 text-muted meta-data small">
                                 <li>
                                     <i class="fas fa-calendar-alt"></i>
-                                    {{ date('M d, Y', strtotime($featured->published_at)) }}
-                                </li>
-                                <li>
-                                    <i class="fas fa-tags"></i>
-                                    @foreach($featured->tags as $tag)
-                                        <a href="{{ route('posts.index', ['tag'=>$tag->name]) }}">{{ $tag->name }}</a>{{ !$loop->last ? ',' : '' }}
-                                    @endforeach
+                                    {{ $featured->getPublishedAtFormatted() }}
                                 </li>
                                 <li>
                                     <i class="fas fa-comments"></i>
@@ -36,13 +30,9 @@
                     </div>
                 @endif
 
-                @if($isSearchOrTag)
+                @if($isSearch)
                     <div class="alert alert-light" role="alert">
-                        @if(request()->get('search') != null)
-                            Searching for "{{ request()->get('search') }}"
-                        @else
-                            Tag "{{ request()->get('tag') }}"
-                        @endif
+                        Searching for "{{ request()->get('search') }}"
                     </div>
                 @endif
 
@@ -54,14 +44,6 @@
                                     <h5 class="card-title font-weight-bold">{{ $post->title }}</h5>
                                     <h6 class="card-subtitle mb-2">by {{ $post->user->name }}</h6>
                                     <p class="card-text">{{ $post->summary  }}</p>
-                                    <ul class="mb-2 text-muted meta-data small">
-                                        <li>
-                                            <i class="fas fa-tags"></i>
-                                            @foreach($post->tags as $tag)
-                                                <a href="{{ route('posts.index', ['tag'=>$tag->name]) }}">{{ $tag->name }}</a>{{ !$loop->last ? ',' : '' }}
-                                            @endforeach
-                                        </li>
-                                    </ul>
                                     <div class="text-right">
                                         <a href="{{ route('posts.show', ['slug'=>$post->slug]) }}"
                                            class="btn btn-primary">Read More</a>
@@ -71,7 +53,7 @@
                                     <div class="row small text-muted">
                                         <div class="col">
                                             <i class="fas fa-calendar-alt"></i>
-                                            {{ date('M d, Y', strtotime($post->published_at)) }}
+                                            {{ $post->getPublishedAtFormatted() }}
                                         </div>
                                         <div class="col-auto">
                                             <i class="fas fa-comments"></i>
@@ -117,7 +99,7 @@
                                     <div class="row small text-muted">
                                         <div class="col">
                                             <i class="fas fa-calendar-alt"></i>
-                                            {{ date('M d, Y', strtotime($post->published_at)) }}
+                                            {{ $post->getPublishedAtFormatted() }}
                                         </div>
                                         <div class="col-auto">
                                             <a href="{{ route('posts.show', ['slug'=>$post->slug]) }}"
@@ -129,20 +111,6 @@
                         @endforeach
 
                     </ul>
-                </div>
-
-                <div class="card mb-3">
-                    <h6 class="card-header text-white bg-secondary">Popular Tags</h6>
-                    <div class="card-body text-center">
-                        <p class="card-text cloud-tag">
-                            @foreach($topTags as $tag)
-                                <a class="btn btn-outline-secondary btn-sm"
-                                   href="{{ route('posts.index', ['tag'=>$tag->name]) }}"
-                                   role="button">{{ $tag->name }}
-                                </a>
-                            @endforeach
-                        </p>
-                    </div>
                 </div>
 
             </div>

@@ -14,9 +14,19 @@ class Post extends Model
         'published_at'
     ];
 
-    public function tags()
+    public function getCommentsCount()
     {
-        return $this->belongsToMany('App\Tag', 'posttags');
+        return $this->comment_count;
+    }
+
+    public function getPublishedAtFormatted()
+    {
+        return date('M d, Y', strtotime($this->published_at));
+    }
+
+    public function getPublishedAtEdit()
+    {
+        return date('d/m/Y H:i', strtotime($this->published_at));
     }
 
     public function user()

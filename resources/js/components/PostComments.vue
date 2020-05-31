@@ -125,7 +125,7 @@
         mounted() {
             this.csrf = document.querySelector('meta[name="csrf-token"]').content;
             this.post = this.postData;
-            this.hasComments = this.post.comments.length >= 0;
+            this.hasComments = this.post.comments.length > 0;
             this.authData = this.authCheck;
             this.isAuth = this.authData.id === 0 ? false : true;
 
