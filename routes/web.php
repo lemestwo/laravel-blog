@@ -17,6 +17,9 @@ Route::get('/', 'PostController@index')->name('home');
 Route::resource('posts', 'PostController')->except(['show']);
 Route::get('posts/{slug}', 'PostController@show')->name('posts.show');
 
-Route::resource('comments', 'CommentController')->except(['show'])->middleware('auth');
+Route::resource('comments', 'CommentController')->only(['store', 'destroy'])->middleware('auth');
+
+Route::get('user/{id}', 'UserController@show')->name('user.show');
+Route::patch('user', 'UserController@update')->name('user.update')->middleware('auth');
 
 Auth::routes();

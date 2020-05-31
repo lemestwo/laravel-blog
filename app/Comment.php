@@ -12,6 +12,11 @@ class Comment extends Model
         'user_id'
     ];
 
+    public function getContentAttribute($value)
+    {
+        return nl2br(e($value));
+    }
+
     public function getCreatedAtAttribute($value)
     {
         return date('M d, Y - h:i a', strtotime($value));

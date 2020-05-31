@@ -24,8 +24,20 @@ class StoreComment extends FormRequest
     public function rules()
     {
         return [
-            'content' => 'required',
+            'content' => 'required|min:5',
             'post_id' => 'required'
+        ];
+    }
+
+    /**
+     * Get custom attributes for validator errors.
+     *
+     * @return array
+     */
+    public function attributes()
+    {
+        return [
+            'content' => 'comment',
         ];
     }
 }

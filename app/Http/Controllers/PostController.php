@@ -91,7 +91,11 @@ class PostController extends Controller
     public function show($slug)
     {
         return view('posts.show', [
-            'post' => Post::where('slug', $slug)->with('comments')->with('user')->firstOrFail()
+            'post' => Post::where('slug', $slug)
+                ->with(['comments' => function ($query) {
+                    return $query->orderByDesc('created_at');
+                }, 'user', 'comments.user'])
+                ->firstOrFail()
         ]);
     }
 
