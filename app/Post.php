@@ -9,9 +9,11 @@ class Post extends Model
     protected $fillable = [
         'slug',
         'title',
+        'summary',
         'content',
-        'status',
-        'published_at'
+        'is_featured',
+        'published_at',
+        'user_id'
     ];
 
     public function getCommentsCount()

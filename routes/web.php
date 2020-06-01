@@ -14,8 +14,11 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', 'PostController@index')->name('home');
-Route::resource('posts', 'PostController')->except(['show', 'create']);
-Route::get('posts/create', 'PostController@create')->name('posts.create')->middleware('is_author');
+Route::resource('posts', 'PostController')->only(['index', 'edit']);
+Route::resource('posts', 'PostController')->only(['create', 'store', 'update', 'destroy'])->middleware('is_author');
+//Route::get('posts/create', 'PostController@create')->name('posts.create')->middleware('is_author');
+//Route::post('posts', 'PostController@store')->name('posts.store')->middleware('is_author');
+//Route::patch('posts/{id}', 'PostController@update')->name('posts.update')->middleware('is_author');
 Route::get('posts/{slug}', 'PostController@show')->name('posts.show');
 
 Route::resource('comments', 'CommentController')->only(['store', 'destroy'])->middleware('auth');

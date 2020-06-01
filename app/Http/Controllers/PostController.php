@@ -2,8 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StorePost;
 use App\Post;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class PostController extends Controller
@@ -28,8 +32,8 @@ class PostController extends Controller
                 ->appends(['search' => $search]);
             $isSearch = true;
         } else {
-            $featured = Post::where('status', 2)->first();
-            $posts = Post::latest('published_at')->paginate(10);
+            $featured = Post::where('is_featured', true)->first();
+            $posts = Post::latest('published_at')->where('is_featured', false)->paginate(10);
         }
 
         $topPosts = Post::orderByDesc('comment_count')->get()->take(5);
@@ -53,12 +57,30 @@ class PostController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\Response
+     * @param StorePost $request
+     * @return \Illuminate\Http\RedirectResponse
      */
-    public function store(Request $request)
+    public function store(StorePost $request)
     {
-        //
+        $request->validated();
+
+        if ($request->input('featured') != null) {
+            $this->resetFeatured(0);
+            $isFeatured = true;
+        } else {
+            $isFeatured = false;
+        }
+
+        Post::create([
+            'slug' => Str::of($request->input('title'))->slug(),
+            'title' => $request->input('title'),
+            'summary' => $request->input('summary'),
+            'content' => $request->input('content'),
+            'published_at' => $request->input('published_at') == null ? Carbon::now() : Carbon::createFromFormat('d/m/Y H:i', $request->input('publish')),
+            'user_id' => Auth::id(),
+            'is_featured' => $isFeatured
+        ]);
+        return redirect()->route('user.posts');
     }
 
     /**
@@ -92,23 +114,51 @@ class PostController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param \Illuminate\Http\Request $request
+     * @param StorePost $request
      * @param Post $post
-     * @return void
+     *
+     * @return \Illuminate\Http\RedirectResponse
      */
-    public function update(Request $request, Post $post)
+    public function update(StorePost $request, Post $post)
     {
-        //
+        if ($post->user_id == Auth::id()) {
+            $request->validated();
+
+            $post->slug = Str::of($request->input('title'))->slug();
+            $post->title = $request->input('title');
+            $post->summary = $request->input('summary');
+            $post->content = $request->input('content');
+            $post->published_at = $request->input('published_at') == null ? Carbon::now() : Carbon::createFromFormat('d/m/Y H:i', $request->input('publish'));
+
+            if ($request->input('featured') != null) {
+                $this->resetFeatured($post->id);
+                $post->is_featured = true;
+            } else {
+                $post->is_featured = false;
+            }
+
+            $post->save();
+
+            return redirect()->route('user.posts');
+        }
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param int $id
-     * @return \Illuminate\Http\Response
+     * @param Post $post
+     * @return \Illuminate\Http\RedirectResponse
      */
-    public function destroy($id)
+    public function destroy(Post $post)
     {
-        //
+        if ($post->user_id == Auth::id()) {
+            $post->delete();
+            return redirect()->route('user.posts');
+        }
+    }
+
+    public function resetFeatured($id)
+    {
+        Post::where([['is_featured', true], ['id', '!=', $id]])->update(['is_featured' => false]);
     }
 }

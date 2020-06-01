@@ -7,7 +7,8 @@
         <div class="card">
             <div class="card-body">
                 <h5 class="card-title font-weight-bold">Create new post</h5>
-                <form action="#" method="post">
+                <form action="{{ isset($post) ? route('posts.update', $post->id) : route('posts.store') }}"
+                      method="post">
                     @if(isset($post))
                         @method('PATCH')
                     @endif
@@ -15,8 +16,8 @@
                     <div class="form-group">
                         <label for="title">Title</label>
                         <input type="text" class="form-control @error('title') is-invalid @enderror" id="title"
-                               aria-label="Post title."
-                               value="{{ old('name') ? old('name') : (isset($post) ? $post->title : '') }}">
+                               name="title" aria-label="Post title."
+                               value="{{ old('title') ? old('title') : (isset($post) ? $post->title : '') }}">
 
                         @error('title')
                         <span class="invalid-feedback" role="alert">
@@ -27,7 +28,7 @@
                     <div class="form-group">
                         <label for="summary">Summary</label>
                         <input type="text" class="form-control @error('summary') is-invalid @enderror" id="summary"
-                               aria-label="Post summary."
+                               name="summary" aria-label="Post summary."
                                value="{{ old('summary') ? old('summary') : (isset($post) ? $post->summary : '') }}">
 
                         @error('summary')
@@ -57,19 +58,20 @@
                                 <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
                             </div>
                             <input type="text" class="form-control @error('publish') is-invalid @enderror" id="publish"
-                                   aria-label="Amount (to the nearest dollar)"
+                                   name="publish" placeholder="{{ date('d/m/Y H:i', strtotime(now())) }}"
                                    value="{{ old('publish') ? old('publish') : (isset($post) ? $post->getPublishedAtEdit() : '') }}"
                                    aria-describedby="publishHelp">
                         </div>
-                        <small id="publishHelp" class="form-text text-muted">
-                            Format: dd/mm/yyyy hh:mm <br/>
-                            Example: 25/12/2020 23:47
-                        </small>
+
                         @error('publish')
                         <span class="invalid-feedback" role="alert">
                             <strong>{{ $message }}</strong>
                         </span>
                         @enderror
+                        <small id="publishHelp" class="form-text text-muted">
+                            Format: dd/mm/yyyy hh:mm <br/>
+                            Leave empty to publish now.
+                        </small>
 
                     </div>
 
@@ -80,7 +82,9 @@
                         </div>
                         <div class="col-auto ml-3">
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" value="" id="featured">
+                                <input class="form-check-input" type="checkbox" value="featured" id="featured"
+                                       name="featured"
+                                    {{ old('featured') ? 'checked' : (isset($post) && $post->is_featured ? 'checked' : '') }}>
                                 <label class="form-check-label" for="featured">
                                     Featured Post?
                                 </label>

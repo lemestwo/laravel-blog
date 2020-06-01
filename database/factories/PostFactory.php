@@ -12,7 +12,6 @@ $factory->define(Post::class, function (Faker $faker) {
         'title' => $faker->sentence,
         'summary' => $faker->text(150),
         'content' => $faker->paragraph(10),
-        'status' => 1,
         'published_at' => $faker->dateTimeThisYear,
         'user_id' => User::all()->random()->id,
     ];

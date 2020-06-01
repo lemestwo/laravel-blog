@@ -31,7 +31,7 @@ class DatabaseSeeder extends Seeder
             'title' => 'Test Post Slug',
             'summary' => 'Just a test post.',
             'content' => 'Text post with some content <br /> looking for errors',
-            'status' => 1,
+            'is_featured' => true,
             'published_at' => now(),
             'user_id' => $user->id
         ]);

@@ -16,8 +16,18 @@
                 <a href="{{ route('posts.edit', $post) }}"
                    class="list-group-item list-group-item-action flex-column align-items-start">
                     <div class="d-flex w-100 justify-content-between">
-                        <h5 class="mb-1 font-weight-bold">{{ $post->title }}</h5>
+                        <h5 class="mb-1 font-weight-bold">@if($post->is_featured) <span class="badge badge-secondary">Featured</span> @endif {{ $post->title }}
+                        </h5>
                         <small>
+                            <form action="{{ route('posts.destroy', $post) }}" method="post" style="display: none;"
+                                  id="delete-form-{{$post->id}}">
+                                @method('DELETE')
+                                @csrf
+                            </form>
+                            <button class="btn btn-secondary btn-sm mr-2" href="{{ route('posts.destroy', $post) }}"
+                                    onclick="event.preventDefault(); if(confirm('Are you sure you want to delete?')) { document.getElementById('delete-form-{{$post->id}}').submit(); }">
+                                Delete
+                            </button>
                             <i class="fas fa-calendar-alt"></i>
                             {{ $post->getPublishedAtFormatted() }}
                         </small>
@@ -28,5 +38,4 @@
             @endforeach
         </div>
     </div>
-
 @endsection
