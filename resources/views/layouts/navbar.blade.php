@@ -36,7 +36,9 @@
                             @if(Auth::user()->level >= 1)
                                 <a href="{{ route('user.posts') }}" class="dropdown-item">Posts</a>
                             @endif
-                            <a href="#" class="dropdown-item">Settings</a>
+                            @if(Auth::user()->level >= 2)
+                                <a href="{{ route('admin.home') }}" class="dropdown-item">Admin Panel</a>
+                            @endif
                             <div class="dropdown-divider"></div>
                             <a class="dropdown-item" href="{{ route('logout') }}"
                                onclick="event.preventDefault();

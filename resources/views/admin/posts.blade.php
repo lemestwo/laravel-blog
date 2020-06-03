@@ -3,23 +3,17 @@
 @section('content')
 
     <div class="container">
-        <div class="row pb-2">
-            <div class="col">
-                <h5 class="font-weight-bold">Posts List</h5>
-            </div>
-            <div class="col-auto">
-                <a href="{{ route('posts.create') }}" class="btn btn-primary btn-sm">New Post</a>
-            </div>
-        </div>
-        <div class="list-group">
+        <h4 class="font-weight-bold">All Posts</h4>
+        <div> {{ $posts->links() }}</div>
+        <div class="list-group mb-3">
             @foreach($posts as $post)
-                <a href="{{ route('posts.edit', $post) }}"
-                   class="list-group-item list-group-item-action flex-column align-items-start">
+                <div class="list-group-item list-group-item-action flex-column align-items-start">
                     <div class="d-flex w-100 justify-content-between">
                         <h5 class="mb-1 font-weight-bold">@if($post->is_featured) <span class="badge badge-secondary">Featured</span> @endif {{ $post->title }}
                         </h5>
                         <small>
-                            <form action="{{ route('posts.destroy', $post) }}" method="post" style="display: none;"
+                            <form action="{{ route('admin.posts.destroy', $post) }}" method="post"
+                                  style="display: none;"
                                   id="delete-form-{{$post->id}}">
                                 @method('DELETE')
                                 @csrf
@@ -34,9 +28,10 @@
                     </div>
                     <small>{{ $post->getCommentsCount() }} comments</small>
                     <p class="mb-1">{{ $post->summary }}</p>
-                </a>
+                </div>
             @endforeach
         </div>
+        <div> {{ $posts->links() }}</div>
     </div>
 
 @endsection

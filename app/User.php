@@ -65,4 +65,14 @@ class User extends Authenticatable
     {
         return $this->instagram_link != null;
     }
+
+    public function posts()
+    {
+        return $this->hasMany('App\Post');
+    }
+
+    public function comments()
+    {
+        return $this->hasMany('App\Comment');
+    }
 }
