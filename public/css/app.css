@@ -17007,12 +17007,6 @@ readers do not read off random characters that represent icons */
   margin-right: 30px;
 }
 
-.cloud-tag a {
-  margin-bottom: 0.5rem;
-  padding-left: 1.5rem;
-  padding-right: 1.5rem;
-}
-
 .pagination {
   justify-content: center;
 }

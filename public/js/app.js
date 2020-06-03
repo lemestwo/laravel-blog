@@ -1947,36 +1947,98 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "PostComments",
-  props: ['commentsData', 'authorId', 'postId'],
+  props: ['postData', 'authCheck'],
   methods: {
+    hasError: function hasError(field) {
+      return this.errors[field] != null;
+    },
+    getError: function getError(field) {
+      return this.errors[field] ? this.errors[field][0] : '';
+    },
+    clearError: function clearError(field) {
+      this.errors[field] = null;
+    },
+    isCommentLoading: function isCommentLoading(id) {
+      return this.loadingComments[id] !== true;
+    },
     submit: function submit() {
+      var _this = this;
+
+      this.isLoading = true;
       var formData = new FormData();
       formData.append('content', this.formComment);
-      formData.append('post_id', this.post);
+      formData.append('post_id', this.post.id);
       formData.append('_token', this.csrf);
       axios.post('/comments', formData).then(function (response) {
-        console.log('success');
+        _this.isLoading = false;
+        _this.formComment = '';
+        _this.hasComments = true;
+        _this.post = response.data[0];
       })["catch"](function (error) {
-        console.log(error);
+        _this.isLoading = false;
+        _this.errors = error.response.data.errors;
       });
+    },
+    deleteComment: function deleteComment(id, index) {
+      var _this2 = this;
+
+      if (confirm('Are you sure?')) {
+        this.loadingComments[id] = true;
+        axios["delete"]('/comments/' + id).then(function () {
+          _this2.loadingComments[id] = false;
+
+          _this2.post.comments.splice(index, 1);
+        })["catch"](function () {
+          _this2.loadingComments[id] = false;
+        });
+      }
     }
   },
   data: function data() {
     return {
       csrf: '',
-      comments: [],
-      author: 0,
+      post: [],
+      hasComments: false,
       formComment: '',
-      post: 0
+      isAuth: false,
+      authData: null,
+      isLoading: false,
+      loadingComments: [],
+      errors: []
     };
   },
   mounted: function mounted() {
     this.csrf = document.querySelector('meta[name="csrf-token"]').content;
-    this.comments = this.commentsData;
-    this.author = this.authorId;
-    this.post = this.postId;
+    this.post = this.postData;
+    this.hasComments = this.post.comments.length > 0;
+    this.authData = this.authCheck;
+    this.isAuth = this.authData.id === 0 ? false : true;
   }
 });
 
@@ -37527,55 +37589,91 @@ var render = function() {
   var _c = _vm._self._c || _h
   return _c("div", [
     _c("div", { staticClass: "card mb-3" }, [
-      _c("div", { staticClass: "card-body" }, [
-        _c("h4", { staticClass: "card-title font-weight-bold" }, [
-          _vm._v("Leave a reply")
-        ]),
-        _vm._v(" "),
-        _c(
-          "form",
-          {
-            on: {
-              submit: function($event) {
-                $event.preventDefault()
-                return _vm.submit($event)
-              }
-            }
-          },
-          [
-            _c("div", { staticClass: "form-group" }, [
-              _c("textarea", {
-                directives: [
-                  {
-                    name: "model",
-                    rawName: "v-model",
-                    value: _vm.formComment,
-                    expression: "formComment"
-                  }
-                ],
-                staticClass: "form-control",
-                attrs: {
-                  name: "comment",
-                  id: "comment",
-                  rows: "4",
-                  placeholder: "Your comment..."
-                },
-                domProps: { value: _vm.formComment },
-                on: {
-                  input: function($event) {
-                    if ($event.target.composing) {
-                      return
-                    }
-                    _vm.formComment = $event.target.value
-                  }
-                }
-              })
+      _vm.isAuth
+        ? _c("div", { staticClass: "card-body" }, [
+            _c("h4", { staticClass: "card-title font-weight-bold" }, [
+              _vm._v("Leave a reply")
             ]),
             _vm._v(" "),
-            _vm._m(0)
-          ]
-        )
-      ])
+            _c(
+              "form",
+              {
+                on: {
+                  submit: function($event) {
+                    $event.preventDefault()
+                    return _vm.submit($event)
+                  }
+                }
+              },
+              [
+                _c("div", { staticClass: "form-group" }, [
+                  _c("textarea", {
+                    directives: [
+                      {
+                        name: "model",
+                        rawName: "v-model",
+                        value: _vm.formComment,
+                        expression: "formComment"
+                      }
+                    ],
+                    staticClass: "form-control",
+                    class: _vm.hasError("content") ? "is-invalid" : "",
+                    attrs: {
+                      name: "content",
+                      id: "content",
+                      rows: "4",
+                      placeholder: "Your comment...",
+                      required: ""
+                    },
+                    domProps: { value: _vm.formComment },
+                    on: {
+                      keydown: function($event) {
+                        return _vm.clearError("content")
+                      },
+                      input: function($event) {
+                        if ($event.target.composing) {
+                          return
+                        }
+                        _vm.formComment = $event.target.value
+                      }
+                    }
+                  }),
+                  _vm._v(" "),
+                  _c("span", {
+                    staticClass: "invalid-feedback",
+                    attrs: { role: "alert" },
+                    domProps: { textContent: _vm._s(_vm.getError("content")) }
+                  })
+                ]),
+                _vm._v(" "),
+                _c("div", { staticClass: "text-right" }, [
+                  _c(
+                    "button",
+                    {
+                      staticClass: "btn btn-primary",
+                      attrs: { type: "submit", disabled: _vm.isLoading }
+                    },
+                    [
+                      _vm.isLoading
+                        ? _c("span", {
+                            staticClass: "spinner-grow spinner-grow-sm",
+                            attrs: { role: "status", "aria-hidden": "true" }
+                          })
+                        : _vm._e(),
+                      _vm._v(
+                        "\n                        POST COMMENT\n                    "
+                      )
+                    ]
+                  )
+                ])
+              ]
+            )
+          ])
+        : _c(
+            "div",
+            { staticClass: "alert alert-info mb-0", attrs: { role: "alert" } },
+            [_vm._v("\n            You need to login to comment.\n        ")]
+          )
     ]),
     _vm._v(" "),
     _c("div", { staticClass: "card mb-3" }, [
@@ -37583,7 +37681,7 @@ var render = function() {
         "div",
         { staticClass: "card-body" },
         [
-          _vm.comments.length <= 0
+          !_vm.hasComments
             ? _c(
                 "div",
                 {
@@ -37598,7 +37696,7 @@ var render = function() {
               )
             : _vm._e(),
           _vm._v(" "),
-          _vm._l(_vm.comments, function(comment) {
+          _vm._l(_vm.post.comments, function(comment, index) {
             return _c("div", { staticClass: "media mb-3" }, [
               _c("img", {
                 staticClass: "align-self-start mr-3 rounded-circle",
@@ -37613,7 +37711,8 @@ var render = function() {
                   "h5",
                   {
                     staticClass: "mt-0 font-weight-bold",
-                    class: _vm.author === comment.user.id ? "text-danger" : ""
+                    class:
+                      _vm.post.user.id === comment.user.id ? "text-danger" : ""
                   },
                   [
                     _vm._v(
@@ -37622,12 +37721,47 @@ var render = function() {
                   ]
                 ),
                 _vm._v(" "),
-                _c("p", { staticClass: "mb-3" }, [
-                  _vm._v(_vm._s(comment.content))
-                ]),
+                _c("p", {
+                  staticClass: "mb-3",
+                  domProps: { innerHTML: _vm._s(comment.content) }
+                }),
                 _vm._v(" "),
                 _c("p", { staticClass: "text-right text-muted mb-0" }, [
-                  _c("small", [_vm._v(_vm._s(comment.created_at))])
+                  _c("small", [
+                    comment.user.id === _vm.authData.id
+                      ? _c("span", [
+                          _c(
+                            "a",
+                            {
+                              attrs: {
+                                href: _vm.isCommentLoading(comment.id)
+                                  ? "#"
+                                  : false
+                              },
+                              on: {
+                                click: function($event) {
+                                  $event.preventDefault()
+                                  return _vm.deleteComment(comment.id, index)
+                                }
+                              }
+                            },
+                            [
+                              _vm._v(
+                                "\n                                    Delete\n                                "
+                              )
+                            ]
+                          ),
+                          _vm._v(
+                            "\n                                -\n                            "
+                          )
+                        ])
+                      : _vm._e(),
+                    _vm._v(
+                      "\n                            " +
+                        _vm._s(comment.created_at) +
+                        "\n                        "
+                    )
+                  ])
                 ])
               ])
             ])
@@ -37638,20 +37772,7 @@ var render = function() {
     ])
   ])
 }
-var staticRenderFns = [
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "text-right" }, [
-      _c(
-        "button",
-        { staticClass: "btn btn-primary", attrs: { type: "submit" } },
-        [_vm._v("POST COMMENT")]
-      )
-    ])
-  }
-]
+var staticRenderFns = []
 render._withStripped = true
 
 
